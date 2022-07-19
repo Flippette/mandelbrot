@@ -56,14 +56,13 @@ fn render(x_block: Range<i32>, y_index: i32, scale: f64) -> Vec<u8> {
             let c = Complex(x, y);
             let mut z = Complex(0.0, 0.0);
 
-            if let Some(iter) = (0..ITER_MAX).find(|_| {
-                z = z * z + c;
-                z.0.is_nan() || z.1.is_nan()
-            }) {
-                (ITER_MAX - iter) as u8
-            } else {
-                0
-            }
+            (ITER_MAX
+                - (0..ITER_MAX)
+                    .find(|_| {
+                        z = z * z + c;
+                        z.0.is_nan() || z.1.is_nan()
+                    })
+                    .unwrap_or(ITER_MAX)) as u8
         })
         .collect::<Vec<u8>>()
 }
