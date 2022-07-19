@@ -18,20 +18,16 @@ fn main() -> Result<()> {
     eprintln!("[info] Rendering started.");
     let timer = Instant::now();
 
-    let mut output = vec![];
-
-    (-viewport_height / 2 + y_offset..viewport_height / 2 + y_offset)
+    let output = (-viewport_height / 2 + y_offset..viewport_height / 2 + y_offset)
         .into_par_iter()
-        .map(|y| {
+        .map(|row| {
             render(
                 -viewport_width / 2 + x_offset..viewport_width / 2 + x_offset,
-                y,
+                row,
                 scale,
             )
         })
-        .collect::<Vec<Vec<u8>>>()
-        .iter_mut()
-        .for_each(|row| output.append(row));
+        .reduce_with(|a, b| a.into_iter().chain(b.into_iter()).collect());
 
     eprintln!(
         "[info] Rendering took {:.2} seconds, writing to output file...",
@@ -40,7 +36,7 @@ fn main() -> Result<()> {
 
     image::save_buffer(
         "./image.png",
-        output.as_bytes(),
+        output.unwrap().as_bytes(),
         viewport_width as u32,
         viewport_height as u32,
         image::ColorType::L8,
