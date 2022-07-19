@@ -1,5 +1,6 @@
-use anyhow::Result;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+#![feature(portable_simd)]
+
+use anyhow::Result; use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::{collections::HashMap, ops::Range, time::Instant};
 
 mod complex;
@@ -8,11 +9,11 @@ use complex::Complex;
 const ITER_MAX: usize = 255;
 
 fn main() -> Result<()> {
-    let viewport_width: i32 = 64000;
-    let viewport_height: i32 = 48000;
+    let viewport_width: i32 = 8000;
+    let viewport_height: i32 = 6000;
     let y_offset = 0;
     let x_offset = -viewport_width / 4;
-    let scale = 0.00005;
+    let scale = 0.001;
 
     eprintln!("[info] Rendering started.");
     let timer = Instant::now();
