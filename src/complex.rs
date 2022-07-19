@@ -22,6 +22,7 @@ impl fmt::Display for Complex {
 impl ops::Add<f64> for Complex {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: f64) -> Self::Output {
         Self(self.0 + rhs, self.1)
     }
@@ -30,6 +31,7 @@ impl ops::Add<f64> for Complex {
 impl ops::Add<Complex> for Complex {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Complex) -> Self::Output {
         Self(self.0 + rhs.0, self.1 + rhs.1)
     }
@@ -38,6 +40,7 @@ impl ops::Add<Complex> for Complex {
 impl ops::Neg for Complex {
     type Output = Self;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         Self(-self.0, -self.1)
     }
@@ -46,6 +49,7 @@ impl ops::Neg for Complex {
 impl ops::Sub<f64> for Complex {
     type Output = Self;
 
+    #[inline]
     fn sub(self, rhs: f64) -> Self::Output {
         Self(self.0 - rhs, self.1)
     }
@@ -54,6 +58,7 @@ impl ops::Sub<f64> for Complex {
 impl ops::Sub<Complex> for Complex {
     type Output = Self;
 
+    #[inline]
     fn sub(self, rhs: Complex) -> Self::Output {
         Self(self.0 - rhs.0, self.1 - rhs.1)
     }
@@ -62,6 +67,7 @@ impl ops::Sub<Complex> for Complex {
 impl ops::Mul<f64> for Complex {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: f64) -> Self::Output {
         Self(self.0 * rhs, self.1 * rhs)
     }
@@ -70,6 +76,7 @@ impl ops::Mul<f64> for Complex {
 impl ops::Mul<Complex> for Complex {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: Complex) -> Self::Output {
         Self(
             self.0 * rhs.0 - self.1 * rhs.1,
@@ -81,6 +88,7 @@ impl ops::Mul<Complex> for Complex {
 impl ops::Div<f64> for Complex {
     type Output = Self;
 
+    #[inline]
     fn div(self, rhs: f64) -> Self::Output {
         Self(self.0 / rhs, self.1 / rhs)
     }
@@ -89,6 +97,7 @@ impl ops::Div<f64> for Complex {
 impl ops::Div<Complex> for Complex {
     type Output = Self;
 
+    #[inline]
     fn div(self, rhs: Complex) -> Self::Output {
         Self(
             (self.0 * rhs.0 + self.1 * rhs.1) / (rhs.0 * rhs.0 + rhs.1 * rhs.1),
@@ -98,12 +107,14 @@ impl ops::Div<Complex> for Complex {
 }
 
 impl ops::AddAssign<f64> for Complex {
+    #[inline]
     fn add_assign(&mut self, rhs: f64) {
         self.0 += rhs;
     }
 }
 
 impl ops::AddAssign<Complex> for Complex {
+    #[inline]
     fn add_assign(&mut self, rhs: Complex) {
         self.0 += rhs.0;
         self.1 += rhs.1;
@@ -111,12 +122,14 @@ impl ops::AddAssign<Complex> for Complex {
 }
 
 impl ops::SubAssign<f64> for Complex {
+    #[inline]
     fn sub_assign(&mut self, rhs: f64) {
         self.0 -= rhs;
     }
 }
 
 impl ops::SubAssign<Complex> for Complex {
+    #[inline]
     fn sub_assign(&mut self, rhs: Complex) {
         self.0 -= rhs.0;
         self.1 -= rhs.1;
@@ -124,6 +137,7 @@ impl ops::SubAssign<Complex> for Complex {
 }
 
 impl ops::MulAssign<f64> for Complex {
+    #[inline]
     fn mul_assign(&mut self, rhs: f64) {
         self.0 *= rhs;
         self.1 *= rhs;
@@ -131,6 +145,7 @@ impl ops::MulAssign<f64> for Complex {
 }
 
 impl ops::MulAssign<Complex> for Complex {
+    #[inline]
     fn mul_assign(&mut self, rhs: Complex) {
         self.0 = self.0 * rhs.0 - self.1 * rhs.1;
         self.1 = self.0 * rhs.1 + self.1 * rhs.0;
@@ -138,6 +153,7 @@ impl ops::MulAssign<Complex> for Complex {
 }
 
 impl ops::DivAssign<f64> for Complex {
+    #[inline]
     fn div_assign(&mut self, rhs: f64) {
         self.0 /= rhs;
         self.1 /= rhs;
@@ -145,6 +161,7 @@ impl ops::DivAssign<f64> for Complex {
 }
 
 impl ops::DivAssign<Complex> for Complex {
+    #[inline]
     fn div_assign(&mut self, rhs: Complex) {
         self.0 = (self.0 * rhs.0 + self.1 * rhs.1) / (rhs.0 * rhs.0 + rhs.1 * rhs.1);
         self.1 = (self.1 * rhs.0 - self.0 * rhs.1) / (rhs.0 * rhs.0 + rhs.1 * rhs.1);
