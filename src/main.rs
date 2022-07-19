@@ -1,6 +1,5 @@
-#![feature(portable_simd)]
-
-use anyhow::Result; use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use anyhow::Result;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::{collections::HashMap, ops::Range, time::Instant};
 
 mod complex;
