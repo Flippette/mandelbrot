@@ -13,21 +13,21 @@ fn main() -> Result<()> {
     let viewport_height: i32 = 6000;
     let y_offset = 0;
     let x_offset = -viewport_width / 4;
-    let scale = 0.001;
+    let scale = 0.0005;
 
     eprintln!("[info] Rendering started.");
     let timer = Instant::now();
 
     let output = (-viewport_height / 2 + y_offset..viewport_height / 2 + y_offset)
         .into_par_iter()
-        .map(|row| {
+        .flat_map(|row| {
             render(
                 -viewport_width / 2 + x_offset..viewport_width / 2 + x_offset,
                 row,
                 scale,
             )
         })
-        .reduce_with(|a, b| a.into_iter().chain(b.into_iter()).collect());
+        .collect::<Vec<u8>>();
 
     eprintln!(
         "[info] Rendering took {:.2} seconds, writing to output file...",
@@ -36,7 +36,7 @@ fn main() -> Result<()> {
 
     image::save_buffer(
         "./image.png",
-        output.unwrap().as_bytes(),
+        output.as_bytes(),
         viewport_width as u32,
         viewport_height as u32,
         image::ColorType::L8,
