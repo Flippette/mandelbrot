@@ -1,19 +1,18 @@
 use anyhow::Result;
-use image::EncodableLayout;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::{ops::Range, time::Instant};
 
 mod complex;
-use complex::Complex;
+use complex::{Complex, Float};
 
 const ITER_MAX: usize = 255;
 
 fn main() -> Result<()> {
     let viewport_width: i32 = 8000;
     let viewport_height: i32 = 6000;
-    let y_offset = 0;
-    let x_offset = -viewport_width / 4;
-    let scale = 0.0005;
+    let y_offset: i32 = 0;
+    let x_offset: i32 = -viewport_width / 4;
+    let scale: Float = 0.0005;
 
     eprintln!("[info] Rendering started.");
     let timer = Instant::now();
@@ -31,12 +30,12 @@ fn main() -> Result<()> {
 
     eprintln!(
         "[info] Rendering took {:.2} seconds, writing to output file...",
-        timer.elapsed().as_secs_f64()
+        timer.elapsed().as_secs_f32()
     );
 
     image::save_buffer(
         "./image.png",
-        output.as_bytes(),
+        &output,
         viewport_width as u32,
         viewport_height as u32,
         image::ColorType::L8,
@@ -47,11 +46,11 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn render(x_block: Range<i32>, y_index: i32, scale: f64) -> Vec<u8> {
+fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> Vec<u8> {
     x_block
         .map(|x| {
-            let x = x as f64 * scale;
-            let y = y_index as f64 * scale;
+            let x = x as Float * scale;
+            let y = y_index as Float * scale;
 
             let c = Complex(x, y);
             let mut z = Complex(0.0, 0.0);

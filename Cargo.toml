@@ -10,11 +10,10 @@ anyhow = "1.0"
 rayon = "1.5"
 image = "0.24"
 
-[profile.dev]
-opt-level = 1
-
-[profile.dev.package."*"]
-opt-level = 3
+[features]
+default = ["double"]
+double = []
+single = []
 
 [profile.release]
 opt-level = 3

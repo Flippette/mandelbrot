@@ -1,7 +1,16 @@
 use std::{cmp::Ordering, fmt, ops};
 
+#[cfg(all(feature="single", not(feature="double")))]
+pub type Float = f32;
+
+#[cfg(all(feature="double", not(feature="single")))]
+pub type Float = f64;
+
+#[cfg(all(feature="double", feature="single"))]
+compile_error!("Feature \"double\" and \"single\" are mutually exclusive!");
+
 #[derive(Debug, Clone, Copy)]
-pub struct Complex(pub f64, pub f64);
+pub struct Complex(pub Float, pub Float);
 
 impl fmt::Display for Complex {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -19,11 +28,11 @@ impl fmt::Display for Complex {
     }
 }
 
-impl ops::Add<f64> for Complex {
+impl ops::Add<Float> for Complex {
     type Output = Self;
 
-    #[inline]
-    fn add(self, rhs: f64) -> Self::Output {
+    #[inline(always)]
+    fn add(self, rhs: Float) -> Self::Output {
         Self(self.0 + rhs, self.1)
     }
 }
@@ -31,7 +40,7 @@ impl ops::Add<f64> for Complex {
 impl ops::Add<Complex> for Complex {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn add(self, rhs: Complex) -> Self::Output {
         Self(self.0 + rhs.0, self.1 + rhs.1)
     }
@@ -40,17 +49,17 @@ impl ops::Add<Complex> for Complex {
 impl ops::Neg for Complex {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn neg(self) -> Self::Output {
         Self(-self.0, -self.1)
     }
 }
 
-impl ops::Sub<f64> for Complex {
+impl ops::Sub<Float> for Complex {
     type Output = Self;
 
-    #[inline]
-    fn sub(self, rhs: f64) -> Self::Output {
+    #[inline(always)]
+    fn sub(self, rhs: Float) -> Self::Output {
         Self(self.0 - rhs, self.1)
     }
 }
@@ -58,17 +67,17 @@ impl ops::Sub<f64> for Complex {
 impl ops::Sub<Complex> for Complex {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn sub(self, rhs: Complex) -> Self::Output {
         Self(self.0 - rhs.0, self.1 - rhs.1)
     }
 }
 
-impl ops::Mul<f64> for Complex {
+impl ops::Mul<Float> for Complex {
     type Output = Self;
 
-    #[inline]
-    fn mul(self, rhs: f64) -> Self::Output {
+    #[inline(always)]
+    fn mul(self, rhs: Float) -> Self::Output {
         Self(self.0 * rhs, self.1 * rhs)
     }
 }
@@ -76,7 +85,7 @@ impl ops::Mul<f64> for Complex {
 impl ops::Mul<Complex> for Complex {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, rhs: Complex) -> Self::Output {
         Self(
             self.0 * rhs.0 - self.1 * rhs.1,
@@ -85,11 +94,11 @@ impl ops::Mul<Complex> for Complex {
     }
 }
 
-impl ops::Div<f64> for Complex {
+impl ops::Div<Float> for Complex {
     type Output = Self;
 
-    #[inline]
-    fn div(self, rhs: f64) -> Self::Output {
+    #[inline(always)]
+    fn div(self, rhs: Float) -> Self::Output {
         Self(self.0 / rhs, self.1 / rhs)
     }
 }
@@ -97,7 +106,7 @@ impl ops::Div<f64> for Complex {
 impl ops::Div<Complex> for Complex {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn div(self, rhs: Complex) -> Self::Output {
         Self(
             (self.0 * rhs.0 + self.1 * rhs.1) / (rhs.0 * rhs.0 + rhs.1 * rhs.1),
@@ -106,62 +115,62 @@ impl ops::Div<Complex> for Complex {
     }
 }
 
-impl ops::AddAssign<f64> for Complex {
-    #[inline]
-    fn add_assign(&mut self, rhs: f64) {
+impl ops::AddAssign<Float> for Complex {
+    #[inline(always)]
+    fn add_assign(&mut self, rhs: Float) {
         self.0 += rhs;
     }
 }
 
 impl ops::AddAssign<Complex> for Complex {
-    #[inline]
+    #[inline(always)]
     fn add_assign(&mut self, rhs: Complex) {
         self.0 += rhs.0;
         self.1 += rhs.1;
     }
 }
 
-impl ops::SubAssign<f64> for Complex {
-    #[inline]
-    fn sub_assign(&mut self, rhs: f64) {
+impl ops::SubAssign<Float> for Complex {
+    #[inline(always)]
+    fn sub_assign(&mut self, rhs: Float) {
         self.0 -= rhs;
     }
 }
 
 impl ops::SubAssign<Complex> for Complex {
-    #[inline]
+    #[inline(always)]
     fn sub_assign(&mut self, rhs: Complex) {
         self.0 -= rhs.0;
         self.1 -= rhs.1;
     }
 }
 
-impl ops::MulAssign<f64> for Complex {
-    #[inline]
-    fn mul_assign(&mut self, rhs: f64) {
+impl ops::MulAssign<Float> for Complex {
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: Float) {
         self.0 *= rhs;
         self.1 *= rhs;
     }
 }
 
 impl ops::MulAssign<Complex> for Complex {
-    #[inline]
+    #[inline(always)]
     fn mul_assign(&mut self, rhs: Complex) {
         self.0 = self.0 * rhs.0 - self.1 * rhs.1;
         self.1 = self.0 * rhs.1 + self.1 * rhs.0;
     }
 }
 
-impl ops::DivAssign<f64> for Complex {
-    #[inline]
-    fn div_assign(&mut self, rhs: f64) {
+impl ops::DivAssign<Float> for Complex {
+    #[inline(always)]
+    fn div_assign(&mut self, rhs: Float) {
         self.0 /= rhs;
         self.1 /= rhs;
     }
 }
 
 impl ops::DivAssign<Complex> for Complex {
-    #[inline]
+    #[inline(always)]
     fn div_assign(&mut self, rhs: Complex) {
         self.0 = (self.0 * rhs.0 + self.1 * rhs.1) / (rhs.0 * rhs.0 + rhs.1 * rhs.1);
         self.1 = (self.1 * rhs.0 - self.0 * rhs.1) / (rhs.0 * rhs.0 + rhs.1 * rhs.1);
