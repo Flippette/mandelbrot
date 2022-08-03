@@ -1,12 +1,12 @@
 use std::{cmp::Ordering, fmt, ops};
 
-#[cfg(all(feature="single", not(feature="double")))]
+#[cfg(all(feature = "single", not(feature = "double")))]
 pub type Float = f32;
 
-#[cfg(all(feature="double", not(feature="single")))]
+#[cfg(all(feature = "double", not(feature = "single")))]
 pub type Float = f64;
 
-#[cfg(all(feature="double", feature="single"))]
+#[cfg(all(feature = "double", feature = "single"))]
 compile_error!("Feature \"double\" and \"single\" are mutually exclusive!");
 
 #[derive(Debug, Clone, Copy)]

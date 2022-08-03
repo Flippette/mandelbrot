@@ -5,7 +5,7 @@ use std::{ops::Range, time::Instant};
 mod complex;
 use complex::{Complex, Float};
 
-const ITER_MAX: usize = 255;
+const ITER_MAX: u8 = 255;
 
 fn main() -> Result<()> {
     let viewport_width: i32 = 8000;
@@ -19,7 +19,7 @@ fn main() -> Result<()> {
 
     let output = (-viewport_height / 2 + y_offset..viewport_height / 2 + y_offset)
         .into_par_iter()
-        .flat_map(|row| {
+        .flat_map_iter(|row| {
             render(
                 -viewport_width / 2 + x_offset..viewport_width / 2 + x_offset,
                 row,
@@ -46,22 +46,20 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> Vec<u8> {
-    x_block
-        .map(|x| {
-            let x = x as Float * scale;
-            let y = y_index as Float * scale;
+fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> Box<dyn Iterator<Item = u8>> {
+    Box::new(x_block.map(move |x| {
+        let x = x as Float * scale;
+        let y = y_index as Float * scale;
 
-            let c = Complex(x, y);
-            let mut z = Complex(0.0, 0.0);
+        let c = Complex(x, y);
+        let mut z = c;
 
-            (ITER_MAX
-                - (0..ITER_MAX)
-                    .find(|_| {
-                        z = z * z + c;
-                        z.0.is_nan() || z.1.is_nan()
-                    })
-                    .unwrap_or(ITER_MAX)) as u8
-        })
-        .collect::<Vec<u8>>()
+        ITER_MAX
+            - (1..ITER_MAX)
+                .find(|_| {
+                    z = z * z + c;
+                    z.0.is_nan() || z.1.is_nan()
+                })
+                .unwrap_or(ITER_MAX)
+    }))
 }
