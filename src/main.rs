@@ -46,8 +46,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> Box<dyn Iterator<Item = u8>> {
-    Box::new(x_block.map(move |x| {
+fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> impl Iterator<Item = u8> {
+    x_block.map(move |x| {
         let x = x as Float * scale;
         let y = y_index as Float * scale;
 
@@ -61,5 +61,5 @@ fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> Box<dyn Iterator<I
                     z.0.is_nan() || z.1.is_nan()
                 })
                 .unwrap_or(ITER_MAX)
-    }))
+    })
 }
