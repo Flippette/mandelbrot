@@ -13,7 +13,7 @@ fn main() {
     let x_offset: i32 = -viewport_width / 4;
     let scale: Float = 0.0005;
 
-    eprintln!("[info] Rendering started.");
+    eprintln!("[info] rendering started.");
     let timer = Instant::now();
 
     let output = (-viewport_height / 2 + y_offset..viewport_height / 2 + y_offset)
@@ -28,7 +28,7 @@ fn main() {
         .collect::<Vec<u8>>();
 
     eprintln!(
-        "[info] Rendering took {:.2} seconds, writing to output file...",
+        "[info] rendering took {:.2} seconds, writing to output file...",
         timer.elapsed().as_secs_f32()
     );
 
@@ -38,9 +38,10 @@ fn main() {
         viewport_width as u32,
         viewport_height as u32,
         image::ColorType::L8,
-    ).unwrap();
+    )
+    .unwrap();
 
-    eprintln!("[info] Done.");
+    eprintln!("[info] done.");
 }
 
 fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> impl Iterator<Item = u8> {
