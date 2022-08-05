@@ -1,12 +1,9 @@
-cargo-features = ["profile-rustflags"]
-
 [package]
 name = "mandelbrot"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
 rayon = "1.5"
 image = "0.24"
 
@@ -20,5 +17,4 @@ opt-level = 3
 lto = "thin"
 strip = true
 panic = "abort"
-rustflags = ["-Ctarget-cpu=native"]
 

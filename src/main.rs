@@ -1,4 +1,3 @@
-use anyhow::Result;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::{ops::Range, time::Instant};
 
@@ -7,7 +6,7 @@ use complex::{Complex, Float};
 
 const ITER_MAX: u8 = 255;
 
-fn main() -> Result<()> {
+fn main() {
     let viewport_width: i32 = 8000;
     let viewport_height: i32 = 6000;
     let y_offset: i32 = 0;
@@ -39,11 +38,9 @@ fn main() -> Result<()> {
         viewport_width as u32,
         viewport_height as u32,
         image::ColorType::L8,
-    )?;
+    ).unwrap();
 
     eprintln!("[info] Done.");
-
-    Ok(())
 }
 
 fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> impl Iterator<Item = u8> {
