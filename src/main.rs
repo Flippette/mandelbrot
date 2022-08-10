@@ -1,4 +1,4 @@
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::prelude::*;
 use std::{ops::Range, time::Instant};
 
 mod complex;
@@ -45,9 +45,9 @@ fn main() {
 }
 
 fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> impl Iterator<Item = u8> {
+    let y = y_index as Float * scale;
     x_block.map(move |x| {
         let x = x as Float * scale;
-        let y = y_index as Float * scale;
 
         let c = Complex(x, y);
         let mut z = c;
