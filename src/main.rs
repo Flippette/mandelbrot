@@ -1,5 +1,5 @@
 use rayon::prelude::*;
-use std::{ops::Range, time::Instant};
+use std::time::Instant;
 
 mod complex;
 use complex::{Complex, Float};
@@ -19,16 +19,13 @@ fn main() {
     let output = (-viewport_height / 2 + y_offset..viewport_height / 2 + y_offset)
         .into_par_iter()
         .flat_map_iter(|row| {
-            render(
-                -viewport_width / 2 + x_offset..viewport_width / 2 + x_offset,
-                row,
-                scale,
-            )
+            (-viewport_width / 2 + x_offset..viewport_width / 2 + x_offset)
+                .map(move |col| render(col as Float * scale, row as Float * scale))
         })
         .collect::<Vec<u8>>();
 
     eprintln!(
-        "[info] rendering took {:.2} seconds, writing to output file...",
+        "[info] rendering took {:.4} seconds, writing to output file...",
         timer.elapsed().as_secs_f32()
     );
 
@@ -44,20 +41,16 @@ fn main() {
     eprintln!("[info] done.");
 }
 
-fn render(x_block: Range<i32>, y_index: i32, scale: Float) -> impl Iterator<Item = u8> {
-    let y = y_index as Float * scale;
-    x_block.map(move |x| {
-        let x = x as Float * scale;
+#[inline]
+fn render(x: Float, y: Float) -> u8 {
+    let c = Complex(x, y);
+    let mut z = c;
 
-        let c = Complex(x, y);
-        let mut z = c;
-
-        ITER_MAX
-            - (1..ITER_MAX)
-                .find(|_| {
-                    z = z * z + c;
-                    z.0.is_nan() || z.1.is_nan()
-                })
-                .unwrap_or(ITER_MAX)
-    })
+    ITER_MAX
+        - (1..ITER_MAX)
+            .find(|_| {
+                z = z * z + c;
+                z.0.is_nan() || z.1.is_nan()
+            })
+            .unwrap_or(ITER_MAX)
 }

@@ -15,7 +15,7 @@ pub struct Complex(pub Float, pub Float);
 impl ops::Add<Complex> for Complex {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn add(self, rhs: Complex) -> Self::Output {
         Self(self.0 + rhs.0, self.1 + rhs.1)
     }
@@ -24,7 +24,7 @@ impl ops::Add<Complex> for Complex {
 impl ops::Mul<Complex> for Complex {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, rhs: Complex) -> Self::Output {
         Self(
             self.0 * rhs.0 - self.1 * rhs.1,
