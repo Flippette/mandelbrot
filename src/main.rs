@@ -49,8 +49,8 @@ fn render(x: Float, y: Float) -> u8 {
     ITER_MAX
         - (1..ITER_MAX)
             .find(|_| {
-                z = z * z + c;
-                z.0.is_nan() || z.1.is_nan()
+                z = z.sqr() + c;
+                z.0.is_nan()
             })
             .unwrap_or(ITER_MAX)
 }

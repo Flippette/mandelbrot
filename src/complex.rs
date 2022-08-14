@@ -21,14 +21,12 @@ impl ops::Add<Complex> for Complex {
     }
 }
 
-impl ops::Mul<Complex> for Complex {
-    type Output = Self;
-
+impl Complex {
     #[inline]
-    fn mul(self, rhs: Complex) -> Self::Output {
+    pub fn sqr(self) -> Self {
         Self(
-            self.0 * rhs.0 - self.1 * rhs.1,
-            self.0 * rhs.1 + self.1 * rhs.0,
+            self.0 * self.0 - self.1 * self.1,
+            2.0 * self.0 * self.1
         )
     }
 }
