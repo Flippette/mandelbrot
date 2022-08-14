@@ -15,14 +15,14 @@ pub struct Complex(pub Float, pub Float);
 impl ops::Add<Complex> for Complex {
     type Output = Self;
 
-    #[inline]
+    #[inline(always)]
     fn add(self, rhs: Complex) -> Self::Output {
         Self(self.0 + rhs.0, self.1 + rhs.1)
     }
 }
 
 impl Complex {
-    #[inline]
+    #[inline(always)]
     pub fn sqr(self) -> Self {
         Self(
             self.0 * self.0 - self.1 * self.1,

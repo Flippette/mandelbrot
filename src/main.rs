@@ -41,7 +41,7 @@ fn main() {
     eprintln!("[info] done.");
 }
 
-#[inline]
+#[inline(always)]
 fn render(x: Float, y: Float) -> u8 {
     let c = Complex(x, y);
     let mut z = c;
