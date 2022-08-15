@@ -1,5 +1,5 @@
 use rayon::prelude::*;
-use std::time::Instant;
+use std::{mem, time::Instant};
 
 mod complex;
 use complex::{Complex, Float};
@@ -46,11 +46,16 @@ fn render(x: Float, y: Float) -> u8 {
     let c = Complex(x, y);
     let mut z = c;
 
-    ITER_MAX
-        - (1..ITER_MAX)
-            .find(|_| {
-                z = z.sqr() + c;
-                z.0.is_nan()
-            })
-            .unwrap_or(ITER_MAX)
+    #[allow(unused_assignments)]
+    let mut last_z = z;
+
+    for iter in (1..ITER_MAX).step_by(2) {
+        let z_clone = z;
+        last_z = mem::replace(&mut z, z_clone.sqr() + c);
+        if z.0.is_nan() {
+            return ITER_MAX - iter - if last_z.0.is_nan() { 1 } else { 0 };
+        }
+    }
+
+    0
 }

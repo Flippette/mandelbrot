@@ -24,9 +24,6 @@ impl ops::Add<Complex> for Complex {
 impl Complex {
     #[inline(always)]
     pub fn sqr(self) -> Self {
-        Self(
-            self.0 * self.0 - self.1 * self.1,
-            2.0 * self.0 * self.1
-        )
+        Self(self.0 * self.0 - self.1 * self.1, 2.0 * self.0 * self.1)
     }
 }
