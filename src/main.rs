@@ -2,7 +2,7 @@ use rayon::prelude::*;
 use std::{mem, time::Instant};
 
 mod complex;
-use complex::{Complex, Float};
+use complex::Complex;
 
 const ITER_MAX: u8 = 255;
 
@@ -11,7 +11,7 @@ fn main() {
     let viewport_height: i32 = 6000;
     let y_offset: i32 = 0;
     let x_offset: i32 = -viewport_width / 4;
-    let scale: Float = 0.0005;
+    let scale: f32 = 0.0005;
 
     eprintln!("[info] rendering started.");
     let timer = Instant::now();
@@ -20,7 +20,7 @@ fn main() {
         .into_par_iter()
         .flat_map_iter(|row| {
             (-viewport_width / 2 + x_offset..viewport_width / 2 + x_offset)
-                .map(move |col| render(col as Float * scale, row as Float * scale))
+                .map(move |col| render(col as f32 * scale, row as f32 * scale))
         })
         .collect::<Vec<u8>>();
 
@@ -42,8 +42,8 @@ fn main() {
 }
 
 #[inline(always)]
-fn render(x: Float, y: Float) -> u8 {
-    let c = Complex(x, y);
+fn render(x: f32, y: f32) -> u8 {
+    let c = Complex::new(x, y);
     let mut z = c;
 
     #[allow(unused_assignments)]
@@ -52,8 +52,8 @@ fn render(x: Float, y: Float) -> u8 {
     for iter in (1..ITER_MAX).step_by(2) {
         let z_clone = z;
         last_z = mem::replace(&mut z, z_clone.sqr() + c);
-        if z.0.is_nan() {
-            return ITER_MAX - iter - if last_z.0.is_nan() { 1 } else { 0 };
+        if z.re.is_nan() {
+            return ITER_MAX - iter - if last_z.re.is_nan() { 1 } else { 0 };
         }
     }
 
