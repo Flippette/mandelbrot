@@ -8,11 +8,11 @@ use complex::Complex;
 
 const ITER_MAX: u8 = 255;
 
-const VIEWPORT_WIDTH: i32 = 8000;
-const VIEWPORT_HEIGHT: i32 = 6000;
+const VIEWPORT_WIDTH: i32 = 40000;
+const VIEWPORT_HEIGHT: i32 = 30000;
 const Y_OFFSET: i32 = 0;
-const X_OFFSET: i32 = -VIEWPORT_WIDTH / 4;
-const SCALE: f32 = 0.0005;
+const X_OFFSET: i32 = -VIEWPORT_HEIGHT / 4;
+const SCALE: f32 = 0.0001;
 
 fn main() {
     eprintln!("[info] rendering started.");
@@ -29,7 +29,7 @@ fn main() {
     let upper_half = upper_half.as_chunks::<{ VIEWPORT_WIDTH as usize }>();
     let lower_half = upper_half.0.iter().rev().flatten();
 
-    let mut output = Vec::with_capacity((VIEWPORT_WIDTH * VIEWPORT_HEIGHT) as usize);
+    let mut output = Vec::with_capacity(VIEWPORT_WIDTH as usize * VIEWPORT_HEIGHT as usize);
 
     output.extend(upper_half.0.iter().flatten());
     output.extend(upper_half.1.iter());
@@ -64,7 +64,7 @@ fn render(x: f32, y: f32) -> u8 {
         let z_clone = z;
         last_z = mem::replace(&mut z, z_clone.sqr() + c);
         if z.re.is_nan() {
-            return ITER_MAX - iter - if last_z.re.is_nan() { 1 } else { 0 };
+            return ITER_MAX - iter - last_z.re.is_nan() as u8;
         }
     }
 
