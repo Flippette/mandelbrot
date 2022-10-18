@@ -8,11 +8,11 @@ use complex::Complex;
 
 const ITER_MAX: u8 = 255;
 
-const VIEWPORT_WIDTH: i32 = 8000;
-const VIEWPORT_HEIGHT: i32 = 6000;
+const VIEWPORT_WIDTH: i32 = 40000;
+const VIEWPORT_HEIGHT: i32 = 30000;
 const Y_OFFSET: i32 = 0;
 const X_OFFSET: i32 = -VIEWPORT_HEIGHT / 4;
-const SCALE: f32 = 0.0005;
+const SCALE: f32 = 0.0001;
 
 fn main() {
     eprintln!("[info] rendering started.");
@@ -25,25 +25,15 @@ fn main() {
                 .map(move |col| render((col + Y_OFFSET) as f32 * SCALE, row as f32 * SCALE))
         })
         .collect::<Vec<u8>>();
-    let upper_half = upper_half.as_chunks::<{ VIEWPORT_WIDTH as usize }>();
 
-    let output = upper_half // Actual upper half
-        .0
-        .iter()
-        .flatten()
-        .chain(
-            upper_half // y=0 line
-                .1
-                .into_iter()
-                .chain(
-                    upper_half // Lower half
-                        .0
-                        .iter()
-                        .flatten()
-                        .rev(),
-                ),
-        )
-        .map(|&byte| byte);
+    let upper_half = upper_half.as_chunks::<{ VIEWPORT_WIDTH as usize }>();
+    let lower_half = upper_half.0.iter().rev().flatten();
+
+    let mut output = Vec::with_capacity(VIEWPORT_WIDTH as usize * VIEWPORT_HEIGHT as usize);
+
+    output.extend(upper_half.0.iter().flatten());
+    output.extend(upper_half.1.iter());
+    output.extend(lower_half);
 
     eprintln!(
         "[info] rendering took {:.4} seconds, writing to output file...",
@@ -52,7 +42,7 @@ fn main() {
 
     image::save_buffer(
         "./image.png",
-        &output.collect::<Vec<u8>>(),
+        &output,
         VIEWPORT_WIDTH as u32,
         VIEWPORT_HEIGHT as u32,
         image::ColorType::L8,
