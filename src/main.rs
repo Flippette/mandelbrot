@@ -1,7 +1,6 @@
-#![feature(slice_as_chunks)]
-
+use image::{ImageOutputFormat, Luma};
 use rayon::prelude::*;
-use std::{mem, time::Instant};
+use std::{fs::File, io::BufWriter, time::Instant};
 
 mod complex;
 use complex::Complex;
@@ -24,30 +23,32 @@ fn main() {
             (-VIEWPORT_WIDTH / 2 + X_OFFSET..VIEWPORT_WIDTH / 2 + X_OFFSET)
                 .map(move |col| render((col + Y_OFFSET) as f32 * SCALE, row as f32 * SCALE))
         })
-        .collect::<Vec<u8>>();
-
-    let upper_half = upper_half.as_chunks::<{ VIEWPORT_WIDTH as usize }>();
-    let lower_half = upper_half.0.iter().rev().flatten();
+        .collect::<Vec<_>>();
 
     let mut output = Vec::with_capacity(VIEWPORT_WIDTH as usize * VIEWPORT_HEIGHT as usize);
 
-    output.extend(upper_half.0.iter().flatten());
-    output.extend(upper_half.1.iter());
-    output.extend(lower_half);
+    (0..VIEWPORT_HEIGHT as usize / 2)
+        .map(|i| &upper_half[i * VIEWPORT_WIDTH as usize..(i + 1) * VIEWPORT_WIDTH as usize])
+        .for_each(|slice| output.extend(slice.iter()));
+
+    (0..VIEWPORT_HEIGHT as usize / 2)
+        .rev()
+        .map(|i| &upper_half[i * VIEWPORT_WIDTH as usize..(i + 1) * VIEWPORT_WIDTH as usize])
+        .for_each(|slice| output.extend(slice.iter()));
 
     eprintln!(
         "[info] rendering took {:.4} seconds, writing to output file...",
         timer.elapsed().as_secs_f32()
     );
 
-    image::save_buffer(
-        "./image.png",
-        &output,
-        VIEWPORT_WIDTH as u32,
-        VIEWPORT_HEIGHT as u32,
-        image::ColorType::L8,
-    )
-    .unwrap();
+    let mut writer = BufWriter::new(File::create("image.jpeg").unwrap());
+    let image: image::ImageBuffer<Luma<u8>, Vec<_>> =
+        image::ImageBuffer::from_vec(VIEWPORT_WIDTH as u32, VIEWPORT_HEIGHT as u32, output)
+            .unwrap();
+
+    image
+        .write_to(&mut writer, ImageOutputFormat::Jpeg(100))
+        .unwrap();
 
     eprintln!("[info] done.");
 }
@@ -61,8 +62,8 @@ fn render(x: f32, y: f32) -> u8 {
     let mut last_z = z;
 
     for iter in (1..ITER_MAX).step_by(2) {
-        let z_clone = z;
-        last_z = mem::replace(&mut z, z_clone.sqr() + c);
+        last_z = z;
+        z = z.sqr() + c;
         if z.re.is_nan() {
             return ITER_MAX - iter - last_z.re.is_nan() as u8;
         }
