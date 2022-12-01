@@ -1,5 +1,6 @@
 #![no_main]
 
+use clap::Parser;
 use image::{ImageOutputFormat, Luma};
 use rayon::prelude::*;
 use std::{
@@ -11,36 +12,61 @@ use std::{
 mod complex;
 use complex::Complex;
 
-const ITER_MAX: u8 = 255;
+#[derive(Debug, Parser)]
+struct Config {
+    #[arg(long, default_value_t = 8000)]
+    viewport_width: i32,
 
-const VIEWPORT_WIDTH: i32 = 40000;
-const VIEWPORT_HEIGHT: i32 = 30000;
-const Y_OFFSET: i32 = 0;
-const X_OFFSET: i32 = -VIEWPORT_HEIGHT / 4;
-const SCALE: f32 = 0.0001;
+    #[arg(long, default_value_t = 6000)]
+    viewport_height: i32,
+
+    #[arg(long, allow_negative_numbers = true, default_value_t = 0)]
+    x_offset: i32,
+
+    #[arg(long, allow_negative_numbers = true, default_value_t = -2000)]
+    y_offset: i32,
+
+    #[arg(long, default_value_t = 0.0005)]
+    scale: f32,
+
+    #[arg(long, default_value_t = 255)]
+    depth_max: u8,
+}
 
 #[no_mangle]
 pub fn main() {
+    let config = Config::parse();
+
     let mut stderr = io::stderr().lock();
 
     stderr.write(b"[info] rendering started.\n").unwrap();
     let timer = Instant::now();
 
-    let mut output = (-VIEWPORT_HEIGHT / 2..0)
+    let mut output = (-config.viewport_height / 2..0)
         .into_par_iter()
         .flat_map_iter(|row| {
-            (-VIEWPORT_WIDTH / 2 + X_OFFSET..VIEWPORT_WIDTH / 2 + X_OFFSET)
-                .map(move |col| render((col + Y_OFFSET) as f32 * SCALE, row as f32 * SCALE))
+            (-config.viewport_width / 2 + config.x_offset
+                ..config.viewport_width / 2 + config.x_offset)
+                .map(move |col| {
+                    render(
+                        (col + config.y_offset) as f32 * config.scale,
+                        row as f32 * config.scale,
+                        config.depth_max,
+                    )
+                })
         })
         .collect::<Vec<_>>();
 
-    output.reserve_exact(VIEWPORT_WIDTH as usize * VIEWPORT_HEIGHT as usize);
+    output.reserve_exact(config.viewport_width as usize * config.viewport_height as usize);
 
-    (0..VIEWPORT_HEIGHT as usize / 2).rev().for_each(|start| {
-        output.extend_from_within(
-            start * VIEWPORT_WIDTH as usize..(start + 1) * VIEWPORT_WIDTH as usize,
-        )
-    });
+    (0..config.viewport_height as usize / 2)
+        .rev()
+        .for_each(|start| {
+            output.extend_from_within(
+                start * config.viewport_width as usize
+                    ..(start + 1) * config.viewport_width as usize,
+            )
+        });
 
     stderr.write(b"[info] rendering took ").unwrap();
     stderr
@@ -51,33 +77,35 @@ pub fn main() {
         .unwrap();
 
     let mut writer = BufWriter::new(File::create("image.jpeg").unwrap());
-    let image: image::ImageBuffer<Luma<u8>, _> =
-        image::ImageBuffer::from_vec(VIEWPORT_WIDTH as u32, VIEWPORT_HEIGHT as u32, output)
-            .unwrap();
 
-    image
-        .write_to(&mut writer, ImageOutputFormat::Jpeg(100))
-        .unwrap();
+    image::ImageBuffer::<Luma<u8>, _>::from_vec(
+        config.viewport_width as u32,
+        config.viewport_height as u32,
+        output,
+    )
+    .unwrap()
+    .write_to(&mut writer, ImageOutputFormat::Jpeg(100))
+    .unwrap();
 
     stderr.write(b"[info] done.\n").unwrap();
 }
 
 #[inline(always)]
-fn render(x: f32, y: f32) -> u8 {
+fn render(x: f32, y: f32, depth_max: u8) -> u8 {
     let c = Complex::new(x, y);
     let mut z2 = c;
 
     #[allow(unused_assignments)]
     let mut z1 = z2;
 
-    for iter in (1..ITER_MAX).step_by(2) {
+    for iter in (1..depth_max).step_by(2) {
         // 1,2 -> 3,4 -> ..
         z1 = z2.sqr() + c;
         z2 = z1.sqr() + c;
 
         match (z1.re.is_nan(), z2.re.is_nan()) {
-            (_, true) => return ITER_MAX - iter,
-            (true, _) => return ITER_MAX - iter - 1,
+            (_, true) => return depth_max - iter,
+            (true, _) => return depth_max - iter - 1,
             _ => continue,
         }
     }

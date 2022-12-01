@@ -7,6 +7,7 @@ authors = ["Flippette <quangdatle2006@outlook.com>"]
 [dependencies]
 rayon = "1.5"
 image = { version = "0.24", default-features = false, features = ["jpeg_rayon"] }
+clap = { version = "4.0.29", features = ["derive"] }
 
 [profile.release]
 lto = true
